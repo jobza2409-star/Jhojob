@@ -37,6 +37,18 @@ jobs:
       - name: Extract project ZIP
         run: unzip -o mh3se-1.1.1-wasm-source.zip -d source
 
+      - name: Disable wasm-opt
+        working-directory: source/mh3se-1.1.1
+        run: |
+          cat >> Cargo.toml <<'EOF'
+          [package.metadata.wasm-pack.profile.release]
+          wasm-opt = false
+          EOF
+
+      - name: Build WebAssembly
+        working-directory: source/mh3se-1.1.1
+        run: wasm-pack build --target web --release
+
       - name: Build WebAssembly
         working-directory: source/mh3se-1.1.1
         run: wasm-pack build --target web --release
