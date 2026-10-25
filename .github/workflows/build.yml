@@ -49,11 +49,26 @@ jobs:
         working-directory: source/mh3se-1.1.1
         run: wasm-pack build --target web --release
 
+      
       - name: Assemble website
         run: |
           mkdir -p site
           cp -R source/mh3se-1.1.1/web site/web
           cp -R source/mh3se-1.1.1/pkg site/pkg
+          cat > site/index.html <<'EOF'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta http-equiv="refresh" content="0;url=./web/">
+            <title>MH3SE</title>
+          </head>
+          <body>
+            <p>Opening MH3SE... <a href="./web/">Tap here</a> if not redirected.</p>
+          </body>
+          </html>
+          EOF
           touch site/.nojekyll
 
       - name: Configure GitHub Pages
