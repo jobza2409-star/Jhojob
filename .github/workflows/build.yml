@@ -49,10 +49,6 @@ jobs:
         working-directory: source/mh3se-1.1.1
         run: wasm-pack build --target web --release
 
-      - name: Build WebAssembly
-        working-directory: source/mh3se-1.1.1
-        run: wasm-pack build --target web --release
-
       - name: Assemble website
         run: |
           mkdir -p site
