@@ -1,1 +1,62 @@
 
+name: Build and deploy MH3SE WASM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Rust and WASM target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@wasm-pack
+
+      - name: Extract project ZIP
+        run: unzip -o mh3se-1.1.1-wasm-source.zip -d source
+
+      - name: Build WebAssembly
+        working-directory: source/mh3se-1.1.1
+        run: wasm-pack build --target web --release
+
+      - name: Assemble website
+        run: |
+          mkdir -p site
+          cp -R source/mh3se-1.1.1/web site/web
+          cp -R source/mh3se-1.1.1/pkg site/pkg
+          touch site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4
+
